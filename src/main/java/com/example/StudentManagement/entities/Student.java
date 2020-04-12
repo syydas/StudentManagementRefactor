@@ -1,8 +1,16 @@
 package com.example.StudentManagement.entities;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
+
+@Table("student")
 public class Student {
+    @Id
+    private Integer id;
     private String name;
     private String gender;
+    @Column ("class_number")
     private String classNum;
 
     public Student() {
