@@ -2,56 +2,55 @@ package com.example.StudentManagement.controllers;
 
 import com.example.StudentManagement.entities.Student;
 import com.example.StudentManagement.repositories.StudentRepository;
-import com.example.StudentManagement.repositories.StudentRepositoryI;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-
 @RestController
-public class StudentController {
-    StudentRepositoryI students = new StudentRepository(new ArrayList<Student>() {
-        {
-            add(new Student("阿苏", "女", "1-1"));
-            add(new Student("小赞", "男", "1-2"));
-            add(new Student("椰波", "男", "1-2"));
-            add(new Student("洲洲", "男", "1-3"));
-            add(new Student("鲸鱼", "男", "1-3"));
-        }
-    });
+public class StudentController{
 
-    @PostMapping("/addStudents")
-    public String addStudents(@RequestBody Student student) {
-        if (students.addStudent(student)) {
-            return "添加成功";
-        } else {
+    @Autowired
+    private final StudentRepository studentRepository;
+
+    public StudentController(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
+
+    @PostMapping("/addStudentsByName")
+    public String addStudentsByName(@RequestBody Student student) {
+        Student s = studentRepository.getStudent(student.getName());
+        if (s != null){
             return "姓名重复";
+        }else {
+            studentRepository.save(student);
+            return "添加成功";
         }
     }
 
     @GetMapping("/getAllStudents")
     public String getAllStudents() {
-        return students.toString();
+        return studentRepository.findAll().toString();
     }
 
     @PostMapping("/getStudentsByName")
     public String getStudentsByName(@RequestBody String name) {
-        Student student = students.getStudentByName(name);
-        if (null == student.getName()) {
-            return "该学生不存在";
-        } else {
-            return student.toString();
+        Student student = studentRepository.getStudent(name);
+        if (student != null){
+            return  student.toString();
+        }else {
+            return "找不到该学生";
         }
     }
 
     @PostMapping("/deleteStudentsByName")
     public String deleteStudentsByName(@RequestBody String name) {
-        if (students.deleteStudentByName(name)) {
-            return "删除成功";
-        } else {
+        if (0 == studentRepository.deleteStudentByName(name)) {
             return "该学生不存在";
+        } else {
+            return "删除成功";
         }
+
     }
 }

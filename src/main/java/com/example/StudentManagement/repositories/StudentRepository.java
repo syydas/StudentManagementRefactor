@@ -1,63 +1,18 @@
 package com.example.StudentManagement.repositories;
 
 import com.example.StudentManagement.entities.Student;
+import org.springframework.data.jdbc.repository.query.Modifying;
+import org.springframework.data.jdbc.repository.query.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
-import java.util.ArrayList;
-import java.util.List;
 
-public class StudentRepository implements StudentRepositoryI{
-    private List<Student> Students = new ArrayList<>();
+public interface StudentRepository extends CrudRepository<Student, Integer> {
 
-    public StudentRepository() {
-    }
+    @Query("SELECT id,name,gender,class_number FROM student where name=:name ")
+    Student getStudent(@Param("name") String name);
 
-    public StudentRepository(List<Student> allStudents) {
-        this.Students = allStudents;
-    }
-
-    public List<Student> getAllStudents() {
-        return Students;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder StudentsString = new StringBuilder();
-        for (Student Student : Students) {
-            StudentsString.append(Student).append("\n");
-        }
-        return StudentsString.toString();
-    }
-
-    @Override
-    public boolean addStudent(Student student) {
-        for (Student Student : Students) {
-            if (Student.getName().equals(student.getName())) {
-                return false;
-            }
-        }
-        Students.add(student);
-        return true;
-    }
-
-    @Override
-    public Student getStudentByName(String name) {
-        for (Student student : Students) {
-            if (name.equals(student.getName())) {
-                return student;
-            }
-        }
-        return new Student();
-    }
-
-    @Override
-    public boolean deleteStudentByName(String name) {
-        Student deleteStudent = new Student();
-        for (Student student : Students) {
-            if (student.getName().equals(name)) {
-                deleteStudent = student;
-                break;
-            }
-        }
-        return Students.remove(deleteStudent);
-    }
+    @Modifying
+    @Query("DELETE FROM student WHERE name=:name")
+    int deleteStudentByName(@Param("name") String name);
 }
