@@ -1,7 +1,7 @@
 package com.example.StudentManagement.controllers;
 
 import com.example.StudentManagement.entities.Student;
-import com.example.StudentManagement.repositories.StudentRepository;
+import com.example.StudentManagement.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,31 +12,32 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudentController{
 
     @Autowired
-    private final StudentRepository studentRepository;
+    private final StudentService studentService;
 
-    public StudentController(StudentRepository studentRepository) {
-        this.studentRepository = studentRepository;
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
     }
+
 
     @PostMapping("/addStudentsByName")
     public String addStudentsByName(@RequestBody Student student) {
-        Student s = studentRepository.getStudent(student.getName());
+        Student s = studentService.getStudentsByName(student.getName());
         if (s != null){
             return "姓名重复";
         }else {
-            studentRepository.save(student);
+            studentService.addStudentsByName(student);
             return "添加成功";
         }
     }
 
     @GetMapping("/getAllStudents")
     public String getAllStudents() {
-        return studentRepository.findAll().toString();
+        return studentService.getAllStudents().toString();
     }
 
     @PostMapping("/getStudentsByName")
     public String getStudentsByName(@RequestBody String name) {
-        Student student = studentRepository.getStudent(name);
+        Student student = studentService.getStudentsByName(name);
         if (student != null){
             return  student.toString();
         }else {
@@ -46,7 +47,7 @@ public class StudentController{
 
     @PostMapping("/deleteStudentsByName")
     public String deleteStudentsByName(@RequestBody String name) {
-        if (0 == studentRepository.deleteStudentByName(name)) {
+        if (0 == studentService.deleteStudentsByName(name)) {
             return "该学生不存在";
         } else {
             return "删除成功";
